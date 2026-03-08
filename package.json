@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/DarrickFauvel/carton-cache-ds-node-express#readme",
   "dependencies": {
+    "better-sqlite3": "^12.6.2",
     "express": "^5.2.1"
   }
 }
