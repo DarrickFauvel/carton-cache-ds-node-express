@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#1a1a2e"/>
+  <!-- Box body -->
+  <rect x="72" y="252" width="368" height="204" rx="8" fill="#e94560"/>
+  <!-- Left lid flap -->
+  <path d="M72 252 L72 176 L252 176 L256 252 Z" fill="#c73250"/>
+  <!-- Right lid flap -->
+  <path d="M440 252 L440 176 L260 176 L256 252 Z" fill="#c73250"/>
+  <!-- Tape vertical strip -->
+  <rect x="238" y="176" width="36" height="280" rx="4" fill="rgba(255,255,255,0.22)"/>
+  <!-- Tape horizontal strip on body -->
+  <rect x="72" y="318" width="368" height="26" rx="0" fill="rgba(255,255,255,0.1)"/>
+</svg>

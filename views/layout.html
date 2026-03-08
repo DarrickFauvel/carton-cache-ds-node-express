@@ -2,19 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>{{TITLE}} — Carton Cache</title>
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Carton Cache">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon.svg">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header>
     <nav>
-      <a href="/" class="brand">Carton Cache</a>
+      <a href="/" class="brand">
+        <svg width="22" height="22" viewBox="0 0 512 512" aria-hidden="true" focusable="false">
+          <rect width="512" height="512" rx="96" fill="#e94560"/>
+          <rect x="72" y="252" width="368" height="204" rx="8" fill="#fff" opacity="0.9"/>
+          <path d="M72 252 L72 176 L252 176 L256 252 Z" fill="#fff" opacity="0.7"/>
+          <path d="M440 252 L440 176 L260 176 L256 252 Z" fill="#fff" opacity="0.7"/>
+          <rect x="238" y="176" width="36" height="280" rx="4" fill="rgba(0,0,0,0.15)"/>
+        </svg>
+        Carton Cache
+      </a>
       <a href="/cartons/new" class="btn-primary">+ Add Carton</a>
     </nav>
   </header>
   <main>
     {{BODY}}
   </main>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+    }
+  </script>
 </body>
 </html>

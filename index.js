@@ -29,20 +29,37 @@ app.use('/api/cartons', cartonsRouter)
 // — UI Routes —
 app.get('/', (_req, res) => {
   const cartons = db.prepare('SELECT * FROM cartons ORDER BY id DESC').all()
-  const rows = cartons.map(c => `
+
+  let cartonTable
+  if (cartons.length === 0) {
+    cartonTable = '<p class="empty-state">No cartons yet. <a href="/cartons/new">Add your first one</a>.</p>'
+  } else {
+    const rows = cartons.map(c => `
     <tr>
-      <td>${escHtml(c.label)}</td>
-      <td>${escHtml(c.company)}</td>
-      <td>${c.length} × ${c.width} × ${c.height}</td>
-      <td>${c.condition}</td>
-      <td>${c.quantity}</td>
+      <td data-label="Label">${escHtml(c.label)}</td>
+      <td data-label="Company">${c.company ? escHtml(c.company) : '<span class="muted">—</span>'}</td>
+      <td data-label="Size">${c.length} × ${c.width} × ${c.height} in</td>
+      <td data-label="Condition"><span class="badge badge-${c.condition}">${c.condition}</span></td>
+      <td data-label="Qty">${c.quantity}</td>
       <td class="actions">
         <a href="/cartons/${c.id}/edit" class="btn-edit">Edit</a>
         <button class="btn-delete" data-id="${c.id}">Delete</button>
       </td>
     </tr>`).join('')
+    cartonTable = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Label</th><th>Company</th><th>Size (L×W×H)</th><th>Condition</th><th>Qty</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="carton-tbody">${rows}</tbody>
+      </table>
+    </div>`
+  }
 
-  const body = readView('index.html').replace('{{CARTON_ROWS}}', rows)
+  const body = readView('index.html').replace('{{CARTON_TABLE}}', cartonTable)
   res.send(renderLayout('Inventory', body))
 })
 

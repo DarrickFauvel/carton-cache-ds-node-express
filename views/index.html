@@ -1,25 +1,17 @@
-<h1>Inventory</h1>
-<table>
-  <thead>
-    <tr>
-      <th>Label</th>
-      <th>Company</th>
-      <th>Size (L×W×H)</th>
-      <th>Condition</th>
-      <th>Qty</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody id="carton-tbody">
-    {{CARTON_ROWS}}
-  </tbody>
-</table>
+<div class="page-header">
+  <h1>Inventory</h1>
+</div>
+{{CARTON_TABLE}}
 <script>
   async function deleteCarton(id, row) {
     if (!confirm('Delete this carton?')) return
     const res = await fetch(`/api/cartons/${id}`, { method: 'DELETE' })
     if (res.ok) {
       row.remove()
+      if (!document.querySelector('#carton-tbody tr')) {
+        document.getElementById('carton-tbody').closest('.table-wrap').outerHTML =
+          '<p class="empty-state">No cartons yet. <a href="/cartons/new">Add your first one</a>.</p>'
+      }
     } else {
       const data = await res.json()
       alert(data.error || 'Delete failed')
