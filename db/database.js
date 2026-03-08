@@ -1,6 +1,6 @@
-import Database from 'better-sqlite3'
+import { DatabaseSync } from 'node:sqlite'
 
-const db = new Database(process.env.DB_PATH || './cartons.db')
+const db = new DatabaseSync(process.env.DB_PATH || './cartons.db')
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS cartons (
