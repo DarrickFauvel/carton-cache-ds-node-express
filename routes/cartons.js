@@ -6,7 +6,7 @@ const router = Router()
 const CONDITIONS = ['new', 'good', 'fair', 'poor']
 
 function validate(body) {
-  const { label, length, width, height, condition, quantity, company } = body
+  const { label, length, width, height, condition, quantity } = body
   if (!label || typeof label !== 'string' || label.trim() === '') {
     return 'label is required'
   }
@@ -28,51 +28,66 @@ function validate(body) {
   return null
 }
 
-router.get('/', (req, res) => {
-  const cartons = db.prepare('SELECT * FROM cartons ORDER BY id DESC').all()
-  res.json(cartons)
+router.get('/', async (req, res) => {
+  const result = await db.execute({
+    sql: 'SELECT * FROM cartons WHERE user_id = ? ORDER BY id DESC',
+    args: [req.session.userId],
+  })
+  res.json(result.rows)
 })
 
-router.get('/:id', (req, res) => {
-  const carton = db.prepare('SELECT * FROM cartons WHERE id = ?').get(req.params.id)
+router.get('/:id', async (req, res) => {
+  const result = await db.execute({
+    sql: 'SELECT * FROM cartons WHERE id = ? AND user_id = ?',
+    args: [req.params.id, req.session.userId],
+  })
+  const carton = result.rows[0]
   if (!carton) return res.status(404).json({ error: 'Carton not found' })
   res.json(carton)
 })
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const error = validate(req.body)
   if (error) return res.status(400).json({ error })
 
   const { label, company = '', model = '', color = '', length, width, height, condition, quantity = 0, location = '', notes = '' } = req.body
-  const result = db.prepare(
-    'INSERT INTO cartons (label, company, model, color, length, width, height, condition, quantity, location, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-  ).run(label.trim(), company.trim(), model.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim())
+  const result = await db.execute({
+    sql: 'INSERT INTO cartons (label, company, model, color, length, width, height, condition, quantity, location, notes, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    args: [label.trim(), company.trim(), model.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim(), req.session.userId],
+  })
 
-  const carton = db.prepare('SELECT * FROM cartons WHERE id = ?').get(result.lastInsertRowid)
-  res.status(201).json(carton)
+  const inserted = await db.execute({ sql: 'SELECT * FROM cartons WHERE id = ?', args: [result.lastInsertRowid] })
+  res.status(201).json(inserted.rows[0])
 })
 
-router.put('/:id', (req, res) => {
-  const existing = db.prepare('SELECT * FROM cartons WHERE id = ?').get(req.params.id)
-  if (!existing) return res.status(404).json({ error: 'Carton not found' })
+router.put('/:id', async (req, res) => {
+  const existing = await db.execute({
+    sql: 'SELECT * FROM cartons WHERE id = ? AND user_id = ?',
+    args: [req.params.id, req.session.userId],
+  })
+  if (!existing.rows[0]) return res.status(404).json({ error: 'Carton not found' })
 
   const error = validate(req.body)
   if (error) return res.status(400).json({ error })
 
   const { label, company = '', model = '', color = '', length, width, height, condition, quantity = 0, location = '', notes = '' } = req.body
-  db.prepare(
-    'UPDATE cartons SET label=?, company=?, model=?, color=?, length=?, width=?, height=?, condition=?, quantity=?, location=?, notes=? WHERE id=?'
-  ).run(label.trim(), company.trim(), model.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim(), req.params.id)
+  await db.execute({
+    sql: 'UPDATE cartons SET label=?, company=?, model=?, color=?, length=?, width=?, height=?, condition=?, quantity=?, location=?, notes=? WHERE id=? AND user_id=?',
+    args: [label.trim(), company.trim(), model.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim(), req.params.id, req.session.userId],
+  })
 
-  const carton = db.prepare('SELECT * FROM cartons WHERE id = ?').get(req.params.id)
-  res.json(carton)
+  const updated = await db.execute({ sql: 'SELECT * FROM cartons WHERE id = ?', args: [req.params.id] })
+  res.json(updated.rows[0])
 })
 
-router.delete('/:id', (req, res) => {
-  const existing = db.prepare('SELECT * FROM cartons WHERE id = ?').get(req.params.id)
-  if (!existing) return res.status(404).json({ error: 'Carton not found' })
+router.delete('/:id', async (req, res) => {
+  const existing = await db.execute({
+    sql: 'SELECT * FROM cartons WHERE id = ? AND user_id = ?',
+    args: [req.params.id, req.session.userId],
+  })
+  if (!existing.rows[0]) return res.status(404).json({ error: 'Carton not found' })
 
-  db.prepare('DELETE FROM cartons WHERE id = ?').run(req.params.id)
+  await db.execute({ sql: 'DELETE FROM cartons WHERE id = ? AND user_id = ?', args: [req.params.id, req.session.userId] })
   res.status(204).send()
 })
 

@@ -1,8 +1,11 @@
-import { DatabaseSync } from 'node:sqlite'
+import { createClient } from '@libsql/client'
 
-const db = new DatabaseSync(process.env.DB_PATH || './cartons.db')
+const db = createClient({
+  url:       process.env.TURSO_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+})
 
-db.exec(`
+await db.execute(`
   CREATE TABLE IF NOT EXISTS cartons (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
     label     TEXT    NOT NULL,
@@ -19,14 +22,26 @@ db.exec(`
   )
 `)
 
-// Migrate existing databases
 for (const sql of [
   "ALTER TABLE cartons ADD COLUMN model    TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE cartons ADD COLUMN color    TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE cartons ADD COLUMN location TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE cartons ADD COLUMN notes    TEXT NOT NULL DEFAULT ''",
 ]) {
-  try { db.exec(sql) } catch { /* column already exists */ }
+  try { await db.execute(sql) } catch { /* column already exists */ }
 }
+
+await db.execute(`
+  CREATE TABLE IF NOT EXISTS users (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    username      TEXT    NOT NULL UNIQUE,
+    password_hash TEXT    NOT NULL,
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+  )
+`)
+
+try {
+  await db.execute("ALTER TABLE cartons ADD COLUMN user_id INTEGER REFERENCES users(id)")
+} catch { /* already exists */ }
 
 export default db

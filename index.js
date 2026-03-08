@@ -1,34 +1,46 @@
 import express from 'express'
-import { readFileSync } from 'fs'
+import session from 'express-session'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import cartonsRouter from './routes/cartons.js'
+import authRouter from './routes/auth.js'
 import db from './db/database.js'
+import { escHtml, readView, renderLayout } from './lib/views.js'
+import { requireAuth, requireAuthApi } from './middleware/auth.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 3000
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 app.use(express.static(join(__dirname, 'public')))
 
-// — Template helpers —
-function readView(name) {
-  return readFileSync(join(__dirname, 'views', name), 'utf8')
-}
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev-fallback-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  },
+}))
 
-function renderLayout(title, body) {
-  return readView('layout.html')
-    .replace('{{TITLE}}', title)
-    .replace('{{BODY}}', body)
-}
+// — Auth routes (public) —
+app.use('/', authRouter)
 
-// — API —
-app.use('/api/cartons', cartonsRouter)
+// — API (requires auth) —
+app.use('/api/cartons', requireAuthApi, cartonsRouter)
 
 // — UI Routes —
-app.get('/', (_req, res) => {
-  const cartons = db.prepare('SELECT * FROM cartons ORDER BY id DESC').all()
+app.get('/', requireAuth, async (req, res) => {
+  const result = await db.execute({
+    sql: 'SELECT * FROM cartons WHERE user_id = ? ORDER BY id DESC',
+    args: [req.session.userId],
+  })
+  const cartons = result.rows
 
   let cartonTable
   if (cartons.length === 0) {
@@ -64,16 +76,20 @@ app.get('/', (_req, res) => {
   }
 
   const body = readView('index.html').replace('{{CARTON_TABLE}}', cartonTable)
-  res.send(renderLayout('Inventory', body))
+  res.send(renderLayout('Inventory', body, req.session.username))
 })
 
-app.get('/cartons/new', (_req, res) => {
-  res.send(renderLayout('Add Carton', readView('new.html')))
+app.get('/cartons/new', requireAuth, (_req, res) => {
+  res.send(renderLayout('Add Carton', readView('new.html'), _req.session.username))
 })
 
-app.get('/cartons/:id/edit', (req, res) => {
-  const carton = db.prepare('SELECT * FROM cartons WHERE id = ?').get(req.params.id)
-  if (!carton) return res.status(404).send(renderLayout('Not Found', '<p>Carton not found.</p>'))
+app.get('/cartons/:id/edit', requireAuth, async (req, res) => {
+  const result = await db.execute({
+    sql: 'SELECT * FROM cartons WHERE id = ? AND user_id = ?',
+    args: [req.params.id, req.session.userId],
+  })
+  const carton = result.rows[0]
+  if (!carton) return res.status(404).send(renderLayout('Not Found', '<p>Carton not found.</p>', req.session.username))
 
   const body = readView('edit.html')
     .replace('{{CARTON_ID}}', carton.id)
@@ -90,16 +106,8 @@ app.get('/cartons/:id/edit', (req, res) => {
     .replace(`{{CARTON_CONDITION_${carton.condition.toUpperCase()}}}`, 'selected')
     .replace(/\{\{CARTON_CONDITION_\w+\}\}/g, '')
 
-  res.send(renderLayout('Edit Carton', body))
+  res.send(renderLayout('Edit Carton', body, req.session.username))
 })
-
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --watch --env-file=.env --disable-warning=ExperimentalWarning index.js",
+    "start": "node --watch --env-file=.env index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +20,9 @@
   },
   "homepage": "https://github.com/DarrickFauvel/carton-cache-ds-node-express#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "@libsql/client": "^0.17.0",
+    "bcrypt": "^6.0.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
   }
 }
