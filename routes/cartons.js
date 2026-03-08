@@ -43,10 +43,10 @@ router.post('/', (req, res) => {
   const error = validate(req.body)
   if (error) return res.status(400).json({ error })
 
-  const { label, company = '', length, width, height, condition, quantity = 0 } = req.body
+  const { label, company = '', model = '', color = '', length, width, height, condition, quantity = 0, location = '', notes = '' } = req.body
   const result = db.prepare(
-    'INSERT INTO cartons (label, company, length, width, height, condition, quantity) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(label.trim(), company.trim(), Number(length), Number(width), Number(height), condition, Number(quantity))
+    'INSERT INTO cartons (label, company, model, color, length, width, height, condition, quantity, location, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(label.trim(), company.trim(), model.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim())
 
   const carton = db.prepare('SELECT * FROM cartons WHERE id = ?').get(result.lastInsertRowid)
   res.status(201).json(carton)
@@ -59,10 +59,10 @@ router.put('/:id', (req, res) => {
   const error = validate(req.body)
   if (error) return res.status(400).json({ error })
 
-  const { label, company = '', length, width, height, condition, quantity = 0 } = req.body
+  const { label, company = '', model = '', color = '', length, width, height, condition, quantity = 0, location = '', notes = '' } = req.body
   db.prepare(
-    'UPDATE cartons SET label=?, company=?, length=?, width=?, height=?, condition=?, quantity=? WHERE id=?'
-  ).run(label.trim(), company.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), req.params.id)
+    'UPDATE cartons SET label=?, company=?, model=?, color=?, length=?, width=?, height=?, condition=?, quantity=?, location=?, notes=? WHERE id=?'
+  ).run(label.trim(), company.trim(), model.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim(), req.params.id)
 
   const carton = db.prepare('SELECT * FROM cartons WHERE id = ?').get(req.params.id)
   res.json(carton)

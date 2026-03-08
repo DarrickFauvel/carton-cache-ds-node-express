@@ -278,8 +278,14 @@ legend {
   gap: 0.75rem;
 }
 
+.form-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
 @media (max-width: 400px) {
-  .form-row { grid-template-columns: 1fr; }
+  .form-row, .form-row-2 { grid-template-columns: 1fr; }
 }
 
 label {
@@ -291,6 +297,25 @@ label {
 }
 
 .required { color: var(--red); }
+
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+  resize: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(74,144,226,0.18);
+}
 
 input[type="text"],
 input[type="number"],
