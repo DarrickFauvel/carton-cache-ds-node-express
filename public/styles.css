@@ -258,6 +258,8 @@ tbody tr:hover td { background: #f7f7fa; }
 
   td.actions::before { display: none; }
 
+  td.mobile-hidden { display: none; }
+
   .btn-edit, .btn-delete { min-height: 40px; padding: 0 1rem; font-size: 0.875rem; }
 }
 

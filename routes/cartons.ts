@@ -6,9 +6,9 @@ const router = Router()
 const CONDITIONS = ['new', 'good', 'fair', 'poor'] as const
 
 interface CartonBody {
-  label: string
-  company?: string
-  model?: string
+  label_id: string
+  brand?: string
+  carton_id?: string
   color?: string
   length: string | number
   width: string | number
@@ -20,9 +20,9 @@ interface CartonBody {
 }
 
 function validate(body: CartonBody): string | null {
-  const { label, length, width, height, condition, quantity } = body
-  if (!label || typeof label !== 'string' || label.trim() === '') {
-    return 'label is required'
+  const { label_id, length, width, height, condition, quantity } = body
+  if (!label_id || typeof label_id !== 'string' || label_id.trim() === '') {
+    return 'label_id is required'
   }
   if (!length || isNaN(Number(length)) || Number(length) <= 0) {
     return 'length must be a positive number'
@@ -64,10 +64,10 @@ router.post('/', async (req, res) => {
   const error = validate(req.body as CartonBody)
   if (error) return res.status(400).json({ error })
 
-  const { label, company = '', model = '', color = '', length, width, height, condition, quantity = 0, location = '', notes = '' } = req.body as CartonBody
+  const { label_id, brand = '', carton_id = '', color = '', length, width, height, condition, quantity = 0, location = '', notes = '' } = req.body as CartonBody
   const result = await db.execute({
-    sql: 'INSERT INTO cartons (label, company, model, color, length, width, height, condition, quantity, location, notes, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    args: [label.trim(), company.trim(), model.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim(), req.session.userId],
+    sql: 'INSERT INTO cartons (label_id, brand, carton_id, color, length, width, height, condition, quantity, location, notes, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    args: [label_id.trim(), brand.trim(), carton_id.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim(), req.session.userId],
   })
 
   const inserted = await db.execute({ sql: 'SELECT * FROM cartons WHERE id = ?', args: [result.lastInsertRowid] })
@@ -84,10 +84,10 @@ router.put('/:id', async (req, res) => {
   const error = validate(req.body as CartonBody)
   if (error) return res.status(400).json({ error })
 
-  const { label, company = '', model = '', color = '', length, width, height, condition, quantity = 0, location = '', notes = '' } = req.body as CartonBody
+  const { label_id, brand = '', carton_id = '', color = '', length, width, height, condition, quantity = 0, location = '', notes = '' } = req.body as CartonBody
   await db.execute({
-    sql: 'UPDATE cartons SET label=?, company=?, model=?, color=?, length=?, width=?, height=?, condition=?, quantity=?, location=?, notes=? WHERE id=? AND user_id=?',
-    args: [label.trim(), company.trim(), model.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim(), req.params.id, req.session.userId],
+    sql: 'UPDATE cartons SET label_id=?, brand=?, carton_id=?, color=?, length=?, width=?, height=?, condition=?, quantity=?, location=?, notes=? WHERE id=? AND user_id=?',
+    args: [label_id.trim(), brand.trim(), carton_id.trim(), color.trim(), Number(length), Number(width), Number(height), condition, Number(quantity), location.trim(), notes.trim(), req.params.id, req.session.userId],
   })
 
   const updated = await db.execute({ sql: 'SELECT * FROM cartons WHERE id = ?', args: [req.params.id] })

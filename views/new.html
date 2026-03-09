@@ -2,12 +2,12 @@
 <form id="new-form">
   <div class="form-row-2">
     <div class="form-group">
-      <label for="company">Company</label>
-      <input type="text" id="company" name="company">
+      <label for="brand">Brand</label>
+      <input type="text" id="brand" name="brand">
     </div>
     <div class="form-group">
-      <label for="model">Model</label>
-      <input type="text" id="model" name="model">
+      <label for="carton_id">Carton ID</label>
+      <input type="text" id="carton_id" name="carton_id">
     </div>
   </div>
   <fieldset>
@@ -56,8 +56,8 @@
     <textarea id="notes" name="notes" rows="3"></textarea>
   </div>
   <div class="form-group">
-    <label for="label">Label <span class="required">*</span></label>
-    <input type="text" id="label" name="label" required>
+    <label for="label_id">Label ID <span class="required">*</span></label>
+    <input type="text" id="label_id" name="label_id" required>
   </div>
   <div id="error-msg" class="error-msg"></div>
   <div class="form-actions">
@@ -66,32 +66,25 @@
   </div>
 </form>
 <script>
-  function companyAbbr(name) {
-    const words = name.trim().split(/\s+/)
-    return words.length > 1
-      ? words.map(w => w[0]).join('')
-      : name.trim().slice(0, 3)
-  }
-
   function fmtDim(n) {
     const v = parseFloat(n)
     return v % 1 === 0 ? String(Math.round(v)) : String(v)
   }
 
   function generateLabel() {
-    const company = document.getElementById('company').value.trim()
-    const model   = document.getElementById('model').value.trim()
-    const length  = document.getElementById('length').value
-    const width   = document.getElementById('width').value
-    const height  = document.getElementById('height').value
+    const brand     = document.getElementById('brand').value.trim()
+    const carton_id = document.getElementById('carton_id').value.trim()
+    const length    = document.getElementById('length').value
+    const width     = document.getElementById('width').value
+    const height    = document.getElementById('height').value
     const parts = []
-    if (company) parts.push(companyAbbr(company).toUpperCase())
-    if (model)   parts.push(model.toUpperCase())
     if (length && width && height) parts.push(`${fmtDim(length)}x${fmtDim(width)}x${fmtDim(height)}`)
-    document.getElementById('label').value = parts.join('-')
+    if (brand)     parts.push(brand.toUpperCase())
+    if (carton_id) parts.push(carton_id.toUpperCase())
+    document.getElementById('label_id').value = parts.join('-')
   }
 
-  ;['company', 'model', 'length', 'width', 'height'].forEach(id => {
+  ;['brand', 'carton_id', 'length', 'width', 'height'].forEach(id => {
     document.getElementById(id).addEventListener('input', generateLabel)
   })
 
@@ -100,9 +93,9 @@
     const errorEl = document.getElementById('error-msg')
     errorEl.textContent = ''
     const body = {
-      label:     document.getElementById('label').value,
-      model:     document.getElementById('model').value,
-      company:   document.getElementById('company').value,
+      label_id:  document.getElementById('label_id').value,
+      carton_id: document.getElementById('carton_id').value,
+      brand:     document.getElementById('brand').value,
       color:     document.getElementById('color').value,
       length:    parseFloat(document.getElementById('length').value),
       width:     parseFloat(document.getElementById('width').value),

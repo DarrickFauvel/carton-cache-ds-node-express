@@ -15,9 +15,9 @@ const app = express()
 // Convert to plain objects and nest dimensions to avoid the collision by design.
 interface Carton {
   id: number
-  label: string
-  company: string
-  model: string
+  label_id: string
+  brand: string
+  carton_id: string
   color: string
   condition: string
   quantity: number
@@ -72,15 +72,15 @@ app.get('/', requireAuth, async (req, res) => {
   } else {
     const rows = cartons.map(c => `
     <tr>
-      <td data-label="Company">${c.company ? escHtml(c.company) : '<span class="muted">—</span>'}</td>
-      <td data-label="Model">${c.model ? escHtml(c.model) : '<span class="muted">—</span>'}</td>
-      <td data-label="Size">${c.dimensions.length} × ${c.dimensions.width} × ${c.dimensions.height} in</td>
-      <td data-label="Color">${c.color ? escHtml(c.color) : '<span class="muted">—</span>'}</td>
-      <td data-label="Condition"><span class="badge badge-${c.condition}">${c.condition}</span></td>
-      <td data-label="Qty">${c.quantity}</td>
+      <td data-label="Brand" class="mobile-hidden">${c.brand ? escHtml(c.brand) : '<span class="muted">—</span>'}</td>
+      <td data-label="Carton ID" class="mobile-hidden">${c.carton_id ? escHtml(c.carton_id) : '<span class="muted">—</span>'}</td>
+      <td data-label="Size" class="mobile-hidden">${c.dimensions.length} × ${c.dimensions.width} × ${c.dimensions.height} in</td>
+      <td data-label="Color" class="mobile-hidden">${c.color ? escHtml(c.color) : '<span class="muted">—</span>'}</td>
+      <td data-label="Condition" class="mobile-hidden"><span class="badge badge-${c.condition}">${c.condition}</span></td>
+      <td data-label="Label ID">${escHtml(c.label_id)}</td>
       <td data-label="Location">${c.location ? escHtml(c.location) : '<span class="muted">—</span>'}</td>
-      <td data-label="Notes">${c.notes ? escHtml(c.notes) : '<span class="muted">—</span>'}</td>
-      <td data-label="Label">${escHtml(c.label)}</td>
+      <td data-label="Qty">${c.quantity}</td>
+      <td data-label="Notes" class="mobile-hidden">${c.notes ? escHtml(c.notes) : '<span class="muted">—</span>'}</td>
       <td class="actions">
         <a href="/cartons/${c.id}/edit" class="btn-edit">Edit</a>
         <button class="btn-delete" data-id="${c.id}">Delete</button>
@@ -91,7 +91,7 @@ app.get('/', requireAuth, async (req, res) => {
       <table>
         <thead>
           <tr>
-            <th>Company</th><th>Model</th><th>Size (L×W×H)</th><th>Color</th><th>Condition</th><th>Qty</th><th>Location</th><th>Notes</th><th>Label</th><th>Actions</th>
+            <th>Brand</th><th>Carton ID</th><th>Size (L×W×H)</th><th>Color</th><th>Condition</th><th>Qty</th><th>Location</th><th>Notes</th><th>Label ID</th><th>Actions</th>
           </tr>
         </thead>
         <tbody id="carton-tbody">${rows}</tbody>
@@ -142,20 +142,20 @@ app.get('/cartons/find', requireAuth, async (req, res) => {
     } else {
       const rows = matches.map(c => `
       <tr>
-        <td data-label="Company">${c.company ? escHtml(c.company) : '<span class="muted">—</span>'}</td>
-        <td data-label="Model">${c.model ? escHtml(c.model) : '<span class="muted">—</span>'}</td>
+        <td data-label="Brand">${c.brand ? escHtml(c.brand) : '<span class="muted">—</span>'}</td>
+        <td data-label="Carton ID">${c.carton_id ? escHtml(c.carton_id) : '<span class="muted">—</span>'}</td>
         <td data-label="Size">${c.dimensions.length} × ${c.dimensions.width} × ${c.dimensions.height} in</td>
         <td data-label="Condition"><span class="badge badge-${c.condition}">${c.condition}</span></td>
         <td data-label="Qty">${c.quantity}</td>
         <td data-label="Location">${c.location ? escHtml(c.location) : '<span class="muted">—</span>'}</td>
-        <td data-label="Label">${escHtml(c.label)}</td>
+        <td data-label="Label ID">${escHtml(c.label_id)}</td>
       </tr>`).join('')
       resultsHtml = `
       <div class="table-wrap" style="margin-top:1.5rem">
         <table>
           <thead>
             <tr>
-              <th>Company</th><th>Model</th><th>Size (L×W×H)</th><th>Condition</th><th>Qty</th><th>Location</th><th>Label</th>
+              <th>Brand</th><th>Carton ID</th><th>Size (L×W×H)</th><th>Condition</th><th>Qty</th><th>Location</th><th>Label ID</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -183,9 +183,9 @@ app.get('/cartons/:id/edit', requireAuth, async (req, res) => {
 
   const body = readView('edit.html')
     .replace('{{CARTON_ID}}', String(carton.id))
-    .replace('{{CARTON_LABEL}}', escHtml(carton.label))
-    .replace('{{CARTON_MODEL}}', escHtml(carton.model))
-    .replace('{{CARTON_COMPANY}}', escHtml(carton.company))
+    .replace('{{CARTON_LABEL_ID}}', escHtml(carton.label_id))
+    .replace('{{CARTON_CARTON_ID}}', escHtml(carton.carton_id))
+    .replace('{{CARTON_BRAND}}', escHtml(carton.brand))
     .replace('{{CARTON_COLOR}}', escHtml(carton.color))
     .replace('{{CARTON_LENGTH}}', String(carton.dimensions.length))
     .replace('{{CARTON_WIDTH}}', String(carton.dimensions.width))
