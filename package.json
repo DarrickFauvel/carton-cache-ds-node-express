@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "node --strip-types index.ts",
+    "start": "node index.ts",
     "dev": "node --watch --env-file=.env --strip-types index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
