@@ -65,6 +65,23 @@ nav {
 
 .brand svg { display: block; flex-shrink: 0; }
 
+/* ── Secondary Nav ─────────────────────────────── */
+.subnav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.subnav-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 /* ── Main ──────────────────────────────────────── */
 main {
   max-width: var(--max-w);
@@ -371,23 +388,17 @@ input:focus, select:focus {
 .nav-username { color: rgba(255,255,255,0.75); font-size: 0.875rem; font-weight: 500; }
 .btn-sm { min-height: 34px; padding: 0 0.85rem; font-size: 0.82rem; }
 
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 1.25rem;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: var(--radius);
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.15s;
+.nav-right .btn-secondary {
+  background: none;
+  color: rgba(255,255,255,0.55);
+  border: none;
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  padding: 0;
+  min-height: unset;
 }
-.btn-secondary:hover { background: rgba(255,255,255,0.25); }
+.nav-right .btn-secondary:hover { color: #fff; background: none; }
 
 /* ── Auth pages ─────────────────────────────────── */
 .auth-wrap {

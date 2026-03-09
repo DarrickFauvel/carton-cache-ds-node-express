@@ -2,9 +2,9 @@
   "name": "carton-cache-ds-node-express",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node --watch --env-file=.env index.js",
+    "start": "node --watch --env-file=.env --strip-types index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,5 +24,11 @@
     "bcrypt": "^6.0.0",
     "express": "^5.2.1",
     "express-session": "^1.19.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.18.2",
+    "typescript": "^5.9.3"
   }
 }
